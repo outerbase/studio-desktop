@@ -7,7 +7,7 @@ export function StarbaseIcon({ className }: { className: string }) {
       height="18"
       viewBox="0 0 18 18"
       fill="none"
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect
@@ -15,56 +15,56 @@ export function StarbaseIcon({ className }: { className: string }) {
         y="15.2308"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="8.30762"
         y="16.6154"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="6.92285"
         y="13.8461"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="9.69238"
         y="13.8461"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="9.69238"
         y="12.4615"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="11.0771"
         y="11.0769"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="11.0771"
         y="5.53845"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="6.92285"
         y="12.4615"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="9.69238"
@@ -72,7 +72,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(180 9.69238 2.76923)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="9.69238"
@@ -80,7 +80,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(180 9.69238 1.38464)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="11.0771"
@@ -88,7 +88,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(180 11.0771 4.15387)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="8.30762"
@@ -96,7 +96,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(180 8.30762 4.15387)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="8.30762"
@@ -104,7 +104,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(180 8.30762 5.53845)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="11.0771"
@@ -112,7 +112,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(180 11.0771 5.53845)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="15.2305"
@@ -120,7 +120,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(-90 15.2305 9.69232)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="16.6152"
@@ -128,7 +128,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(-90 16.6152 9.69232)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="13.8457"
@@ -136,7 +136,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(-90 13.8457 11.0769)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="13.8457"
@@ -144,7 +144,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(-90 13.8457 8.30768)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="12.4619"
@@ -152,7 +152,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(-90 12.4619 8.30768)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="12.4619"
@@ -160,7 +160,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(-90 12.4619 11.0769)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="2.76953"
@@ -168,7 +168,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(90 2.76953 8.30768)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="1.38477"
@@ -176,7 +176,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(90 1.38477 8.30768)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="4.1543"
@@ -184,7 +184,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(90 4.1543 6.9231)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="4.1543"
@@ -192,7 +192,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(90 4.1543 9.69232)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="5.53809"
@@ -200,7 +200,7 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(90 5.53809 9.69232)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="5.53809"
@@ -208,21 +208,21 @@ export function StarbaseIcon({ className }: { className: string }) {
         width="1.38462"
         height="1.38462"
         transform="rotate(90 5.53809 6.9231)"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="5.53809"
         y="11.0769"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
       <rect
         x="5.53809"
         y="5.53845"
         width="1.38462"
         height="1.38462"
-        fill="black"
+        fill="currentColor"
       />
     </svg>
   );
@@ -231,7 +231,7 @@ export function StarbaseIcon({ className }: { className: string }) {
 export function MySQLIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -320,7 +320,7 @@ export function MySQLIcon({ className }: { className?: string }) {
 export function PostgreIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -369,7 +369,7 @@ export function TursoIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 201 170"
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -384,7 +384,7 @@ export function TursoIcon({ className }: { className?: string }) {
 export function CloudflareIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       viewBox="0 0 25 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -412,7 +412,7 @@ export function CloudflareIcon({ className }: { className?: string }) {
 export function ValtownIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       viewBox="80 85 230 225"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -438,7 +438,7 @@ export function ValtownIcon({ className }: { className?: string }) {
 export function RqliteIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       viewBox="0 0 126 126"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -491,7 +491,7 @@ export function RqliteIcon({ className }: { className?: string }) {
 export function SQLiteIcon({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("w-12 h-12 flex-shrink-0", className)}
+      className={cn("h-12 w-12 flex-shrink-0", className)}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
