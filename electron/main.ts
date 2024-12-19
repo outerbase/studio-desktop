@@ -15,6 +15,7 @@ import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { bindDockerIpc } from "./ipc/docker";
 import { Setting } from "./setting";
 import { ThemeType } from "@/context/theme-provider";
+import { OuterbaseApplication } from "./type";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // const require = createRequire(import.meta.url);
@@ -54,7 +55,9 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL
 
 const settings = new Setting();
 settings.load();
-let win: BrowserWindow | null;
+const application: OuterbaseApplication = {
+  win: undefined,
+};
 
 const STUDIO_ENDPOINT = "https://studio.outerbase.com/embed";
 // const STUDIO_ENDPOINT = "http://localhost:3008/embed";
@@ -86,7 +89,7 @@ function createDatabaseWindow(
   }).toString();
 
   dbWindow.on("closed", () => {
-    win?.show();
+    application.win?.show();
     ConnectionPool.close(conn.id);
   });
 
@@ -109,7 +112,7 @@ function createDatabaseWindow(
 }
 
 function createWindow() {
-  win = new BrowserWindow({
+  application.win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     title: "Outerbase Studio",
 
@@ -121,20 +124,23 @@ function createWindow() {
   });
 
   if (process.env.NODE_ENV === "development") {
-    win.webContents.openDevTools({ mode: "detach" });
+    application.win.webContents.openDevTools({ mode: "detach" });
   }
 
   // Test active push message to Renderer-process.
-  win.webContents.on("did-finish-load", () => {
-    win?.webContents.send("main-process-message", new Date().toLocaleString());
+  application.win.webContents.on("did-finish-load", () => {
+    application.win?.webContents.send(
+      "main-process-message",
+      new Date().toLocaleString(),
+    );
   });
 
-  win.webContents.on("will-navigate", (event, url) => {
+  application.win.webContents.on("will-navigate", (event, url) => {
     console.log("trying to navigate", url);
     event.preventDefault();
   });
 
-  win.webContents.on("will-redirect", (event, url) => {
+  application.win.webContents.on("will-redirect", (event, url) => {
     log.info("trying to redirect", url);
     event.preventDefault();
   });
@@ -142,42 +148,40 @@ function createWindow() {
   autoUpdater.checkForUpdatesAndNotify();
 
   autoUpdater.on("checking-for-update", () => {
-    win?.webContents.send("checking-for-update");
+    application.win?.webContents.send("checking-for-update");
     log.info("checking-for-update");
   });
 
   autoUpdater.on("update-available", (info) => {
-    win?.webContents.send("update-available", info);
+    application.win?.webContents.send("update-available", info);
     log.info("update-available", info);
   });
 
   autoUpdater.on("update-not-available", (info) => {
-    win?.webContents.send("update-not-available", info);
+    application.win?.webContents.send("update-not-available", info);
     log.info("update-not-available", info);
   });
 
   autoUpdater.on("error", (info) => {
-    win?.webContents.send("update-error", info);
+    application.win?.webContents.send("update-error", info);
     log.info("error", info);
   });
 
   autoUpdater.on("download-progress", (progress) => {
-    win?.webContents.send("update-download-progress", progress);
+    application.win?.webContents.send("update-download-progress", progress);
     log.info("download-progress", progress);
   });
 
   autoUpdater.on("update-downloaded", (info) => {
-    win?.webContents.send("update-downloaded", info);
+    application.win?.webContents.send("update-downloaded", info);
     log.info("update-downloaded", info);
   });
 
-  bindDockerIpc(win);
-
   if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
+    application.win.loadURL(VITE_DEV_SERVER_URL);
   } else {
     // win.loadFile('dist/index.html')
-    win.loadFile(path.join(RENDERER_DIST, "index.html"));
+    application.win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
 }
 
@@ -187,7 +191,7 @@ function createWindow() {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
-    win = null;
+    application.win = undefined;
   }
 });
 
@@ -199,7 +203,12 @@ app.on("activate", () => {
   }
 });
 
-app.whenReady().then(createWindow);
+app
+  .whenReady()
+  .then(createWindow)
+  .finally(() => {
+    bindDockerIpc(application);
+  });
 
 ipcMain.handle("query", async (_, connectionId, query) => {
   const r = await ConnectionPool.query(connectionId, query);
@@ -221,7 +230,7 @@ ipcMain.handle("close", async (sender) => {
 
 ipcMain.handle("connect", (_, conn: ConnectionStoreItem, enableDebug) => {
   createDatabaseWindow(conn, enableDebug);
-  if (win) win.hide();
+  if (application.win) application.win.hide();
 });
 
 ipcMain.handle("download-update", () => {

@@ -1,8 +1,9 @@
-import { BrowserWindow, ipcMain, shell } from "electron";
 import fs from "fs";
+import { ipcMain, shell } from "electron";
 import Docker, { ContainerInspectInfo } from "dockerode";
 import { getUserDataPath } from "./../file-helper";
 import { type DatabaseInstanceStoreItem } from "@/lib/db-manager-store";
+import { OuterbaseApplication } from "../type";
 
 export interface PullImageProgress {
   status: string;
@@ -11,9 +12,10 @@ export interface PullImageProgress {
   id: string;
 }
 
-export function bindDockerIpc(win: BrowserWindow) {
+export function bindDockerIpc(app: OuterbaseApplication) {
   const docker = new Docker();
   let eventStream: NodeJS.ReadableStream | undefined;
+  let dockerIniting = false;
 
   async function getContainer(
     id: string,
@@ -77,7 +79,6 @@ export function bindDockerIpc(win: BrowserWindow) {
     });
   }
 
-  let dockerIniting = false;
   ipcMain.handle("docker-init", async () => {
     try {
       if (dockerIniting) return false;
@@ -88,7 +89,7 @@ export function bindDockerIpc(win: BrowserWindow) {
       eventStream = await docker.getEvents();
 
       eventStream.on("data", (data) => {
-        win.webContents.send("docker-event", data.toString());
+        app.win?.webContents.send("docker-event", data.toString());
       });
 
       eventStream.on("end", () => {
