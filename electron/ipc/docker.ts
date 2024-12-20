@@ -59,7 +59,12 @@ export function bindDockerIpc(app: OuterbaseApplication) {
   ) {
     console.log("pulling", data);
     return await new Promise((resolve, reject) => {
-      docker.pull(`${data.type}:${data.version}`, {}, (err, stream) => {
+      let imageName = `${data.type}:${data.version}`;
+      if (data.type === "mssql") {
+        imageName = `mcr.microsoft.com/mssql/server:${data.version}`;
+      }
+
+      docker.pull(imageName, {}, (err, stream) => {
         if (err) reject(err);
 
         if (!stream) {
@@ -122,7 +127,6 @@ export function bindDockerIpc(app: OuterbaseApplication) {
       if (data.type === "mysql") {
         // Get the volume path
         const volume = getUserDataPath(`/vol/${data.id}`);
-        console.log("here", volume);
 
         await docker.createContainer({
           name: data.id,
@@ -140,7 +144,17 @@ export function bindDockerIpc(app: OuterbaseApplication) {
             Binds: [`${volume}:/var/lib/mysql`],
           },
         });
-      } else {
+      } else if (data.type === "mssql") {
+        await docker.createContainer({
+          name: data.id,
+          Image: `mcr.microsoft.com/mssql/server:${data.version}`,
+          Env: [`ACCEPT_EULA=Y`, `MSSQL_SA_PASSWORD=${data.config.password}`],
+          ExposedPorts: { "1433/tcp": {} },
+          HostConfig: {
+            PortBindings: { "1433/tcp": [{ HostPort: `${data.config.port}` }] },
+          },
+        });
+      } else if (data.type === "postgres") {
         const volume = getUserDataPath(`vol/${data.id}`);
 
         await docker.createContainer({

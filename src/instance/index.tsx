@@ -30,6 +30,7 @@ import { PostgresInstance } from "./postgres-instance";
 import { Toolbar, ToolbarButton, ToolbarDropdown } from "@/components/toolbar";
 import { type PullImageProgress } from "electron/ipc/docker";
 import { parseSafeJson } from "@/lib/json-help";
+import { SqlServerInstance } from "./mssql-instance";
 
 function convertByteToMBString(byte: number) {
   return `${(byte / 1024 / 1024).toFixed(2)}mb`;
@@ -210,6 +211,10 @@ function InstanceListRoute() {
           >
             <PostgreIcon className="h-4 w-4" />
             PostgreSQL
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/instance/create/mssql")}>
+            <PostgreIcon className="h-4 w-4" />
+            Microsoft SQL
           </DropdownMenuItem>
         </ToolbarDropdown>
 
@@ -426,6 +431,10 @@ export default function InstanceTab() {
             <Route
               path="/instance/create/postgres"
               Component={withAnimation(PostgresInstance)}
+            />
+            <Route
+              path="/instance/create/mssql"
+              Component={withAnimation(SqlServerInstance)}
             />
             <Route
               path="/instance/create/:type"
