@@ -57,6 +57,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import ImportConnectionStringRoute from "./import-connection-string";
+import useNavigateToRoute from "@/hooks/useNavigateToRoute";
 
 const connectionTypeList = [
   "mysql",
@@ -253,6 +254,8 @@ function ConnectionItem({
 }
 
 function ConnectionListRoute() {
+  useNavigateToRoute();
+
   const [connectionList, setConnectionList] = useState(() => {
     return ConnectionStoreManager.list();
   });

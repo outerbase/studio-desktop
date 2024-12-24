@@ -5,6 +5,7 @@ import TursoDriver from "./drivers/sqlite";
 import PostgresDriver from "./drivers/postgres";
 import StarbaseDriver from "./drivers/starbase";
 import CloudflareDriver from "./drivers/cloudflare";
+import { windowMap } from "./window/create-database";
 import { ConnectionPoolType } from "./type";
 
 export class ConnectionPool {
@@ -12,6 +13,10 @@ export class ConnectionPool {
 
   protected static createDBPool(conn: ConnectionStoreItem) {
     if (ConnectionPool.connections[conn.id]) {
+      const focusWindow = windowMap.get(conn.id);
+      if (focusWindow && !focusWindow.isDestroyed()) {
+        focusWindow.focus();
+      }
       throw new Error(`Connection already exists: ${conn.id}`);
     }
     let connectionPool: ConnectionPoolType;

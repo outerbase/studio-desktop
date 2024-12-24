@@ -218,7 +218,10 @@ export class ConnectionStoreManager {
     try {
       const data = localStorage.getItem("connections");
       if (!data) return [];
-      return JSON.parse(data) as ConnectionStoreItem[];
+      const parsedJson = JSON.parse(data);
+      // send to main process
+      window.outerbaseIpc.send("connections", parsedJson);
+      return parsedJson as ConnectionStoreItem[];
     } catch {
       return [];
     }

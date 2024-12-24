@@ -59,6 +59,10 @@ const outerbaseIpc = {
     return ipcRenderer.invoke("test-connection", conn);
   },
 
+  getConnection() {
+    return ipcRenderer.invoke("get-connection");
+  },
+
   downloadUpdate() {
     return ipcRenderer.invoke("download-update");
   },

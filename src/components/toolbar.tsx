@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { LucideChevronLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import useGoback from "@/hooks/useGoback";
 
 export function Toolbar({ children }: PropsWithChildren) {
   return <div className="flex items-center gap-2 border-b p-2">{children}</div>;
@@ -38,10 +38,10 @@ export function ToolbarDropdown({
 }
 
 export function ToolbarBackButton() {
-  const navigate = useNavigate();
+  const goBack = useGoback();
 
   return (
-    <Button variant="ghost" onClick={() => navigate(-1)}>
+    <Button variant="ghost" onClick={goBack}>
       <LucideChevronLeft className="h-4 w-4" />
     </Button>
   );

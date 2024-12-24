@@ -3,7 +3,7 @@ import { ipcMain, shell } from "electron";
 import Docker, { ContainerInspectInfo } from "dockerode";
 import { getUserDataPath } from "./../file-helper";
 import { type DatabaseInstanceStoreItem } from "@/lib/db-manager-store";
-import { OuterbaseApplication } from "../type";
+import { MainWindow } from "../window/main-window";
 
 export interface PullImageProgress {
   status: string;
@@ -12,7 +12,8 @@ export interface PullImageProgress {
   id: string;
 }
 
-export function bindDockerIpc(app: OuterbaseApplication) {
+export function bindDockerIpc(main: MainWindow) {
+  const win = main.getWindow();
   const docker = new Docker();
   let eventStream: NodeJS.ReadableStream | undefined;
   let dockerIniting = false;
@@ -90,11 +91,11 @@ export function bindDockerIpc(app: OuterbaseApplication) {
 
       eventStream.on("data", (data) => {
         try {
-          if (app.win) {
-            app.win?.webContents.send("docker-event", data.toString());
+          if (win) {
+            win?.webContents.send("docker-event", data.toString());
           }
         } catch (e) {
-          console.error(e)
+          console.error(e);
         }
       });
 
