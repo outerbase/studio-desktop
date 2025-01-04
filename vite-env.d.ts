@@ -1,5 +1,9 @@
+import { Dispatch, SetStateAction } from "react";
 import { type OuterbaseIpc } from "./electron/preload";
 declare global {
+  type Maybe<T> = T | null | undefined;
+
+  type DispatchState<T> = Dispatch<SetStateAction<T>>;
   interface Window {
     outerbaseIpc: OuterbaseIpc;
   }
