@@ -2,6 +2,7 @@ import { ThemeType } from "@/context/theme-provider";
 import { Colors } from "../../src/theme/Colors";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { BrowserWindow, screen } from "electron";
 
 const isMac = process.platform === "darwin";
 const isWindow = process.platform === "win32";
@@ -22,16 +23,37 @@ function getWindowConfig(
   connId?: string,
   theme: ThemeType = "light",
 ): Electron.BrowserWindowConstructorOptions {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+
+  const windowWidth = 1024;
+  const windowHeight = 768;
+
+  let display;
+  if (focusedWindow) {
+    const { x, y } = focusedWindow.getBounds();
+    display = screen.getDisplayNearestPoint({ x, y });
+  } else {
+    const cursorPoint = screen.getCursorScreenPoint();
+    display = screen.getDisplayNearestPoint(cursorPoint);
+  }
+
+  const { bounds } = display;
+
+  const x = Math.floor(bounds.x + (bounds.width - windowWidth) / 2);
+  const y = Math.floor(bounds.y + (bounds.height - windowHeight) / 2);
+
   return {
+    x,
+    y,
     icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+    width: windowWidth,
+    height: windowHeight,
     show: false,
-    width: 1024,
-    height: 768,
     autoHideMenuBar: false,
     backgroundColor: Colors.background[theme],
     webPreferences: {
       devTools: true,
-      additionalArguments: ["--database=" + connId],
+      additionalArguments: connId ? ["--database=" + connId] : undefined,
       preload: path.join(getOuterbaseDir(), "preload.mjs"),
     },
   };

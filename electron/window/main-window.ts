@@ -2,7 +2,7 @@ import path from "node:path";
 import log from "electron-log";
 import { BrowserWindow } from "electron";
 import { OuterbaseApplication } from "../type";
-import { getOuterbaseDir, isDev } from "../utils";
+import { getWindowConfig, isDev } from "../utils";
 import {
   VITE_DEV_SERVER_URL,
   RENDERER_DIST,
@@ -10,7 +10,6 @@ import {
   settings,
 } from "../main";
 import { ThemeType } from "@/context/theme-provider";
-import { Colors } from "../../src/theme/Colors";
 
 const autoUpdater = getAutoUpdater();
 
@@ -24,17 +23,12 @@ export class MainWindow {
    * Initialize the main window
    */
   public init() {
-    const dirname = getOuterbaseDir();
     const theme = settings.get<ThemeType>("theme") || "light";
     this.win = new BrowserWindow({
-      icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+      ...getWindowConfig(undefined, theme),
+      show: true,
       title: "Outerbase Studio",
       autoHideMenuBar: true,
-      backgroundColor: Colors.background[theme],
-      webPreferences: {
-        devTools: true,
-        preload: path.join(dirname, "preload.mjs"),
-      },
     });
     if (isDev) {
       this.win.webContents.openDevTools({ mode: "detach" });
