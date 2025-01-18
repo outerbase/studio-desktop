@@ -9,6 +9,7 @@ import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { type ContainerInspectInfo, type ContainerInfo } from "dockerode";
 import { Result } from "./drivers/base";
 import type { TrackEventItem } from "./ipc/analytics";
+import { SavedDocData } from "./drivers/saved-doc-driver";
 
 // Get connection id
 const connectionId = process.argv
@@ -123,32 +124,40 @@ const outerbaseIpc = {
 
   // expose docs ipc following remote save doc from web studio: https://github.com/outerbase/studio/blob/develop/src/drivers/saved-doc/remote-saved-doc.ts
   docs: {
-    getNamespaces: (): Promise<unknown> =>
-      ipcRenderer.invoke("docs:getNamespaces"),
+    getNamespaces: () => ipcRenderer.invoke("getNamespaces"),
 
-    createNamespace: (name: string): Promise<unknown> =>
-      ipcRenderer.invoke("docs:createNamespace", name),
+    createNamespace: (roomName: string) =>
+      ipcRenderer.invoke("createNamespace", roomName),
 
-    updateNamespace: (id: string, name: string): Promise<unknown> =>
-      ipcRenderer.invoke("docs:updateNamespace", id, name),
+    updateNamespace: (id: string, newName: string) =>
+      ipcRenderer.invoke("updateNamespace", id, newName),
 
     removeNamespace: (id: string): Promise<void> =>
-      ipcRenderer.invoke("docs:removeNamespace", id),
+      ipcRenderer.invoke("removeNamespace", id),
 
     createDoc: (
       type: string,
       namespace: string,
       data: Record<string, unknown>,
-    ): Promise<unknown> =>
-      ipcRenderer.invoke("docs:createDoc", type, namespace, data),
+    ): Promise<SavedDocData> =>
+      ipcRenderer.invoke("createDoc", type, namespace, data),
 
-    getDocs: (): Promise<unknown> => ipcRenderer.invoke("docs:getDocs"),
+    getDocs: (connectionId: string): Promise<SavedDocData[]> =>
+      ipcRenderer.invoke("getDocs", connectionId),
 
-    updateDoc: (id: string, data: Record<string, unknown>): Promise<unknown> =>
-      ipcRenderer.invoke("docs:updateDoc", id, data),
+    updateDoc: (
+      id: string,
+      data: Record<string, SavedDocData>,
+    ): Promise<SavedDocData> => ipcRenderer.invoke("updateDoc", id, data),
 
     removeDoc: (id: string): Promise<void> =>
-      ipcRenderer.invoke("docs:removeDoc", id),
+      ipcRenderer.invoke("removeDoc", id),
+
+    removeChangeListener: (cb: () => void) =>
+      ipcRenderer.removeListener("removeChangeListener", cb),
+
+    addChangeListener: (cb: () => void) =>
+      ipcRenderer.addListener("addChangeListener", cb),
   },
 
   sendAnalyticEvents(deviceId: string, events: TrackEventItem[]) {

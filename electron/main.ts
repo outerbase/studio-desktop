@@ -14,7 +14,7 @@ import { MainWindow } from "./window/main-window";
 import electronUpdater, { type AppUpdater } from "electron-updater";
 import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { createDatabaseWindow } from "./window/create-database";
-import { bindMenuIpc, bindDockerIpc } from "./ipc";
+import { bindMenuIpc, bindDockerIpc, bindSavedDocs } from "./ipc";
 import { bindAnalyticIpc } from "./ipc/analytics";
 
 export function getAutoUpdater(): AppUpdater {
@@ -106,6 +106,7 @@ ipcMain.handle("connect", (_, conn: ConnectionStoreItem, enableDebug) => {
     main: mainWindow,
     enableDebug,
   });
+  bindSavedDocs(conn.id);
   if (mainWindow.getWindow()) {
     mainWindow.hide();
   }
