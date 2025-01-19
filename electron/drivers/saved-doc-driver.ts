@@ -45,10 +45,15 @@ export class FileBasedSavedDocDriver {
     namespaces: SavedDocNamespace[];
     docs: SavedDocData[];
   } {
-    if (!fs.existsSync(this.storagePath)) {
+    try {
+      if (!fs.existsSync(this.storagePath)) {
+        return { namespaces: [], docs: [] };
+      }
+      return JSON.parse(fs.readFileSync(this.storagePath, "utf-8"));
+    } catch (error) {
+      console.error("Failed to load storage:", error);
       return { namespaces: [], docs: [] };
     }
-    return JSON.parse(fs.readFileSync(this.storagePath, "utf-8"));
   }
 
   private saveStorage(): void {
@@ -135,6 +140,19 @@ export class FileBasedSavedDocDriver {
   async removeDoc(id: string): Promise<void> {
     this.data.docs = this.data.docs.filter((d) => d.id !== id);
     this.saveStorage();
+  }
+
+  async deleteDocFile(): Promise<void> {
+    try {
+      if (fs.existsSync(this.storagePath)) {
+        fs.unlinkSync(this.storagePath);
+      } else {
+        console.warn(`File not found: ${this.storagePath}`);
+      }
+    } catch (error) {
+      console.error(`Failed to delete file: ${this.storagePath}`, error);
+      throw new Error("Error deleting the database file");
+    }
   }
 
   private notifyChange(): void {

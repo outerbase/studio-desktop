@@ -16,7 +16,7 @@ const handlers = [
   "removeNamespace",
 ];
 
-export function bindSavedDocs(databaseId: string) {
+export function bindSavedDocIpc(databaseId: string) {
   const driver = new FileBasedSavedDocDriver(databaseId);
 
   // Clear all listeners and handlers to prevent duplication

@@ -142,7 +142,7 @@ const outerbaseIpc = {
     ): Promise<SavedDocData> =>
       ipcRenderer.invoke("createDoc", type, namespace, data),
 
-    getDocs: (connectionId: string): Promise<SavedDocData[]> =>
+    getDocs: (): Promise<SavedDocData[]> =>
       ipcRenderer.invoke("getDocs", connectionId),
 
     updateDoc: (
@@ -152,6 +152,10 @@ const outerbaseIpc = {
 
     removeDoc: (id: string): Promise<void> =>
       ipcRenderer.invoke("removeDoc", id),
+
+    deleteDocFile: (conn: ConnectionStoreItem) => {
+      ipcRenderer.invoke("deleteDocFile", conn);
+    },
 
     removeChangeListener: (cb: () => void) =>
       ipcRenderer.removeListener("removeChangeListener", cb),

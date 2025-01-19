@@ -19,6 +19,7 @@ export default function ConnectionList({ data, setConnectionList }: Props) {
 
   function onDeletConnection() {
     if (deletingConnectionId) {
+      window.outerbaseIpc.docs.deleteDocFile(deletingConnectionId);
       setConnectionList(ConnectionStoreManager.remove(deletingConnectionId.id));
       setDeletingConnectionId(null);
     }
