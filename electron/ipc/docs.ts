@@ -14,13 +14,12 @@ const handlers = [
   "createNamespace",
   "updateNamespace",
   "removeNamespace",
+  "addChangeListener",
+  "removeChangeListener",
 ];
 
 export function bindSavedDocIpc(databaseId: string) {
   const driver = new FileBasedSavedDocDriver(databaseId);
-
-  // Clear all listeners and handlers to prevent duplication
-  ipcMain.removeAllListeners();
 
   handlers.forEach((handler) => ipcMain.removeHandler(handler));
 
@@ -52,11 +51,22 @@ export function bindSavedDocIpc(databaseId: string) {
     driver.removeNamespace(id),
   );
 
-  ipcMain.addListener("addChangeListener", (_, cb) =>
-    driver.addChangeListener(cb),
-  );
+  // Persistent listeners for change notifications
+  ipcMain.on("addChangeListener", (event) => {
+    const listener = () => {
+      event.sender.send("changeEvent");
+    };
+    driver.addChangeListener(listener);
 
-  ipcMain.addListener("removeChangeListener", (_, cb) =>
-    driver.removeChangeListener(cb),
-  );
+    // Clean up listener when the renderer process disconnects
+    event.sender.once("destroyed", () => {
+      driver.removeChangeListener(listener);
+    });
+  });
+
+  ipcMain.on("removeChangeListener", (event) => {
+    driver.removeChangeListener(() => {
+      event.sender.send("changeEvent");
+    });
+  });
 }

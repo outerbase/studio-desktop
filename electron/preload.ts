@@ -157,11 +157,15 @@ const outerbaseIpc = {
       ipcRenderer.invoke("deleteDocFile", conn);
     },
 
-    removeChangeListener: (cb: () => void) =>
-      ipcRenderer.removeListener("removeChangeListener", cb),
+    addChangeListener: (cb: () => void) => {
+      ipcRenderer.on("changeEvent", cb);
+      ipcRenderer.send("addChangeListener");
+    },
 
-    addChangeListener: (cb: () => void) =>
-      ipcRenderer.addListener("addChangeListener", cb),
+    removeChangeListener: (cb: () => void) => {
+      ipcRenderer.removeListener("changeEvent", cb);
+      ipcRenderer.send("removeChangeListener");
+    },
   },
 
   sendAnalyticEvents(deviceId: string, events: TrackEventItem[]) {
