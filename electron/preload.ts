@@ -9,7 +9,7 @@ import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { type ContainerInspectInfo, type ContainerInfo } from "dockerode";
 import { Result } from "./drivers/base";
 import type { TrackEventItem } from "./ipc/analytics";
-import { SavedDocData } from "./drivers/saved-doc-driver";
+import { SavedDocData } from "./drivers/base-doc";
 
 // Get connection id
 const connectionId = process.argv
@@ -124,47 +124,48 @@ const outerbaseIpc = {
 
   // expose docs ipc following remote save doc from web studio: https://github.com/outerbase/studio/blob/develop/src/drivers/saved-doc/remote-saved-doc.ts
   docs: {
-    getNamespaces: () => ipcRenderer.invoke("getNamespaces"),
+    getNamespaces: () => ipcRenderer.invoke("get-name-spaces"),
 
     createNamespace: (roomName: string) =>
-      ipcRenderer.invoke("createNamespace", roomName),
+      ipcRenderer.invoke("create-name-space", roomName),
 
     updateNamespace: (id: string, newName: string) =>
-      ipcRenderer.invoke("updateNamespace", id, newName),
+      ipcRenderer.invoke("update-name-space", id, newName),
 
     removeNamespace: (id: string): Promise<void> =>
-      ipcRenderer.invoke("removeNamespace", id),
+      ipcRenderer.invoke("remove-name-space", id),
 
     createDoc: (
       type: string,
       namespace: string,
       data: Record<string, unknown>,
     ): Promise<SavedDocData> =>
-      ipcRenderer.invoke("createDoc", type, namespace, data),
+      ipcRenderer.invoke("create-doc", type, namespace, data),
 
-    getDocs: (): Promise<SavedDocData[]> =>
-      ipcRenderer.invoke("getDocs", connectionId),
+    getDocs: (connId: string): Promise<SavedDocData[]> => {
+      return ipcRenderer.invoke("get-docs", connId);
+    },
 
     updateDoc: (
       id: string,
       data: Record<string, SavedDocData>,
-    ): Promise<SavedDocData> => ipcRenderer.invoke("updateDoc", id, data),
+    ): Promise<SavedDocData> => ipcRenderer.invoke("update-doc", id, data),
 
     removeDoc: (id: string): Promise<void> =>
-      ipcRenderer.invoke("removeDoc", id),
+      ipcRenderer.invoke("remove-doc", id),
 
-    deleteDocFile: (conn: ConnectionStoreItem) => {
-      ipcRenderer.invoke("deleteDocFile", conn);
+    deleteDocFile: (connId: string) => {
+      ipcRenderer.invoke("delete-doc-file", connId);
     },
 
     addChangeListener: (cb: () => void) => {
       ipcRenderer.on("changeEvent", cb);
-      ipcRenderer.send("addChangeListener");
+      ipcRenderer.send("add-change-listener");
     },
 
     removeChangeListener: (cb: () => void) => {
       ipcRenderer.removeListener("changeEvent", cb);
-      ipcRenderer.send("removeChangeListener");
+      ipcRenderer.send("remove-change-listener");
     },
   },
 

@@ -16,7 +16,6 @@ import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { createDatabaseWindow } from "./window/create-database";
 import { bindMenuIpc, bindDockerIpc, bindSavedDocIpc } from "./ipc";
 import { bindAnalyticIpc } from "./ipc/analytics";
-import { FileBasedSavedDocDriver } from "./drivers/saved-doc-driver";
 
 export function getAutoUpdater(): AppUpdater {
   // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
@@ -107,7 +106,6 @@ ipcMain.handle("connect", (_, conn: ConnectionStoreItem, enableDebug) => {
     main: mainWindow,
     enableDebug,
   });
-  bindSavedDocIpc(conn.id);
   if (mainWindow.getWindow()) {
     mainWindow.hide();
   }
@@ -141,9 +139,5 @@ ipcMain.on("navigate", (event, route: string) => {
   event.sender.send("navigate-to", route);
 });
 
-ipcMain.handle("deleteDocFile", async (_, conn: ConnectionStoreItem) => {
-  const savedDocDriver = new FileBasedSavedDocDriver(conn.id);
-  await savedDocDriver.deleteDocFile();
-});
-
+bindSavedDocIpc();
 bindAnalyticIpc();

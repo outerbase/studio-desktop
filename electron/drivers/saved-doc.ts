@@ -1,43 +1,23 @@
-import { getUserDataFile } from "../file-helper";
 import fs from "fs";
+import { getUserDataFile } from "../file-helper";
+import {
+  SavedDocType,
+  SavedDocNamespace,
+  SavedDocInput,
+  SavedDocData,
+  SavedDocGroupByNamespace,
+  BaseDocDriver,
+} from "./base-doc";
 
-export type SavedDocType = "sql";
-
-export interface SavedDocNamespaceInput {
-  name: string;
-}
-
-export interface SavedDocNamespace extends SavedDocNamespaceInput {
-  id: string;
-  createdAt: number;
-  updatedAt: number;
-}
-
-export interface SavedDocInput {
-  name: string;
-  content: string;
-}
-
-export interface SavedDocData extends SavedDocInput {
-  id: string;
-  type: SavedDocType;
-  namespace: { id: string; name: string };
-  createdAt: number;
-  updatedAt: number;
-}
-
-export interface SavedDocGroupByNamespace {
-  namespace: SavedDocNamespace;
-  docs: SavedDocData[];
-}
-
-export class FileBasedSavedDocDriver {
+export class FileBasedDocDriver implements BaseDocDriver {
   private storagePath: string;
   private data: { namespaces: SavedDocNamespace[]; docs: SavedDocData[] };
   private changeListeners: Set<() => void> = new Set();
 
-  constructor(databaseId: string) {
-    this.storagePath = getUserDataFile(`saved-docs-${databaseId}.json`);
+  constructor(connectionId: string) {
+    if (!connectionId) throw new Error("Connection ID must be provide!");
+
+    this.storagePath = getUserDataFile(`saved-docs-${connectionId}.json`);
     this.data = this.loadStorage();
   }
 
@@ -45,26 +25,21 @@ export class FileBasedSavedDocDriver {
     namespaces: SavedDocNamespace[];
     docs: SavedDocData[];
   } {
-    try {
-      if (!fs.existsSync(this.storagePath)) {
-        return { namespaces: [], docs: [] };
-      }
-      return JSON.parse(fs.readFileSync(this.storagePath, "utf-8"));
-    } catch (error) {
-      console.error("Failed to load storage:", error);
+    if (!fs.existsSync(this.storagePath)) {
       return { namespaces: [], docs: [] };
     }
+    return JSON.parse(fs.readFileSync(this.storagePath, "utf-8"));
   }
 
   private saveStorage(): void {
     fs.writeFileSync(this.storagePath, JSON.stringify(this.data, null, 2));
   }
 
-  async getNamespaces(): Promise<SavedDocNamespace[]> {
+  public async getNamespaces(): Promise<SavedDocNamespace[]> {
     return this.data.namespaces;
   }
 
-  async createNamespace(name: string): Promise<SavedDocNamespace> {
+  public async createNamespace(name: string): Promise<SavedDocNamespace> {
     const namespace: SavedDocNamespace = {
       id: crypto.randomUUID(),
       name,
@@ -77,7 +52,10 @@ export class FileBasedSavedDocDriver {
     return namespace;
   }
 
-  async updateNamespace(id: string, name: string): Promise<SavedDocNamespace> {
+  public async updateNamespace(
+    id: string,
+    name: string,
+  ): Promise<SavedDocNamespace> {
     const namespace = this.data.namespaces.find((n) => n.id === id);
     if (!namespace) {
       throw new Error("Namespace not found");
@@ -89,21 +67,21 @@ export class FileBasedSavedDocDriver {
     return namespace;
   }
 
-  async removeNamespace(id: string): Promise<void> {
+  public async removeNamespace(id: string): Promise<void> {
     this.data.namespaces = this.data.namespaces.filter((n) => n.id !== id);
     this.data.docs = this.data.docs.filter((d) => d.namespace.id !== id);
     this.saveStorage();
     this.notifyChange();
   }
 
-  async getDocs(): Promise<SavedDocGroupByNamespace[]> {
+  public async getDocs(): Promise<SavedDocGroupByNamespace[]> {
     return this.data.namespaces.map((namespace) => ({
       namespace,
       docs: this.data.docs.filter((doc) => doc.namespace.id === namespace.id),
     }));
   }
 
-  async createDoc(
+  public async createDoc(
     type: SavedDocType,
     namespaceId: string,
     data: SavedDocInput,
@@ -115,9 +93,10 @@ export class FileBasedSavedDocDriver {
       id: crypto.randomUUID(),
       type,
       namespace: { id: namespace.id, name: namespace.name },
+      name: data.name,
+      content: data.content,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      ...data,
     };
     this.data.docs.push(doc);
     this.saveStorage();
@@ -125,7 +104,10 @@ export class FileBasedSavedDocDriver {
     return doc;
   }
 
-  async updateDoc(id: string, data: SavedDocInput): Promise<SavedDocData> {
+  public async updateDoc(
+    id: string,
+    data: SavedDocInput,
+  ): Promise<SavedDocData> {
     const doc = this.data.docs.find((d) => d.id === id);
     if (!doc) throw new Error("Document not found");
 
@@ -137,22 +119,24 @@ export class FileBasedSavedDocDriver {
     return doc;
   }
 
-  async removeDoc(id: string): Promise<void> {
-    this.data.docs = this.data.docs.filter((d) => d.id !== id);
-    this.saveStorage();
-  }
-
-  async deleteDocFile(): Promise<void> {
+  async deleteDocFile(connId: string): Promise<void> {
+    const storagePath = getUserDataFile(`saved-docs-${connId}.json`);
     try {
-      if (fs.existsSync(this.storagePath)) {
-        fs.unlinkSync(this.storagePath);
+      if (fs.existsSync(storagePath)) {
+        fs.unlinkSync(storagePath);
       } else {
-        console.warn(`File not found: ${this.storagePath}`);
+        console.warn(`File not found: ${storagePath}`);
       }
     } catch (error) {
-      console.error(`Failed to delete file: ${this.storagePath}`, error);
+      console.error(`Failed to delete file: ${storagePath}`, error);
       throw new Error("Error deleting the database file");
     }
+  }
+
+  public async removeDoc(id: string): Promise<void> {
+    this.data.docs = this.data.docs.filter((d) => d.id !== id);
+    this.saveStorage();
+    this.notifyChange();
   }
 
   private notifyChange(): void {

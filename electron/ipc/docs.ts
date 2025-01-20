@@ -1,71 +1,57 @@
 import { ipcMain } from "electron";
-import {
-  SavedDocInput,
-  SavedDocType,
-  FileBasedSavedDocDriver,
-} from "../drivers/saved-doc-driver";
+import { SavedDocManager } from "../saved-doc-manager";
+import { SavedDocInput, SavedDocType } from "../drivers/base-doc";
 
-const handlers = [
-  "getDocs",
-  "createDoc",
-  "updateDoc",
-  "removeDoc",
-  "getNamespaces",
-  "createNamespace",
-  "updateNamespace",
-  "removeNamespace",
-  "addChangeListener",
-  "removeChangeListener",
-];
-
-export function bindSavedDocIpc(databaseId: string) {
-  const driver = new FileBasedSavedDocDriver(databaseId);
-
-  handlers.forEach((handler) => ipcMain.removeHandler(handler));
-
-  ipcMain.handle("getDocs", async () => driver.getDocs());
+export function bindSavedDocIpc() {
+  ipcMain.handle("get-docs", () => SavedDocManager.getDocs());
 
   ipcMain.handle(
-    "createDoc",
-    async (_, type: SavedDocType, namespaceId: string, data: SavedDocInput) =>
-      driver.createDoc(type, namespaceId, data),
+    "create-doc",
+    (_, type: SavedDocType, namespaceId: string, data: SavedDocInput) =>
+      SavedDocManager.createDoc(type, namespaceId, data),
   );
 
-  ipcMain.handle("updateDoc", (_, id: string, data: SavedDocInput) =>
-    driver.updateDoc(id, data),
+  ipcMain.handle("update-doc", (_, id: string, data: SavedDocInput) =>
+    SavedDocManager.updateDoc(id, data),
   );
 
-  ipcMain.handle("removeDoc", (_, id: string) => driver.removeDoc(id));
-
-  ipcMain.handle("getNamespaces", async () => driver.getNamespaces());
-
-  ipcMain.handle("createNamespace", (_, name: string) =>
-    driver.createNamespace(name),
+  ipcMain.handle("remove-doc", (_, id: string) =>
+    SavedDocManager.removeDoc(id),
   );
 
-  ipcMain.handle("updateNamespace", (_, id: string, name: string) =>
-    driver.updateNamespace(id, name),
+  ipcMain.handle("get-name-spaces", () => SavedDocManager.getNamespaces());
+
+  ipcMain.handle("create-name-space", (_, name: string) =>
+    SavedDocManager.createNamespace(name),
   );
 
-  ipcMain.handle("removeNamespace", (_, id: string) =>
-    driver.removeNamespace(id),
+  ipcMain.handle("update-name-space", (_, id: string, name: string) =>
+    SavedDocManager.updateNamespace(id, name),
+  );
+
+  ipcMain.handle("remove-name-space", (_, id: string) =>
+    SavedDocManager.removeNamespace(id),
+  );
+
+  ipcMain.handle("delete-doc-file", (_, connId: string) =>
+    SavedDocManager.deleteDocFile(connId),
   );
 
   // Persistent listeners for change notifications
-  ipcMain.on("addChangeListener", (event) => {
+  ipcMain.on("add-change-listener", (event) => {
     const listener = () => {
       event.sender.send("changeEvent");
     };
-    driver.addChangeListener(listener);
+    SavedDocManager.addChangeListener(listener);
 
     // Clean up listener when the renderer process disconnects
     event.sender.once("destroyed", () => {
-      driver.removeChangeListener(listener);
+      SavedDocManager.removeChangeListener(listener);
     });
   });
 
-  ipcMain.on("removeChangeListener", (event) => {
-    driver.removeChangeListener(() => {
+  ipcMain.on("remove-change-listener", (event) => {
+    SavedDocManager.removeChangeListener(() => {
       event.sender.send("changeEvent");
     });
   });
