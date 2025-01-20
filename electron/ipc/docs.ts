@@ -19,17 +19,17 @@ export function bindSavedDocIpc() {
     SavedDocManager.removeDoc(id),
   );
 
-  ipcMain.handle("get-name-spaces", () => SavedDocManager.getNamespaces());
+  ipcMain.handle("get-namespaces", () => SavedDocManager.getNamespaces());
 
-  ipcMain.handle("create-name-space", (_, name: string) =>
+  ipcMain.handle("create-namespace", (_, name: string) =>
     SavedDocManager.createNamespace(name),
   );
 
-  ipcMain.handle("update-name-space", (_, id: string, name: string) =>
+  ipcMain.handle("update-namespace", (_, id: string, name: string) =>
     SavedDocManager.updateNamespace(id, name),
   );
 
-  ipcMain.handle("remove-name-space", (_, id: string) =>
+  ipcMain.handle("remove-namespace", (_, id: string) =>
     SavedDocManager.removeNamespace(id),
   );
 

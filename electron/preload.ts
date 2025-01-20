@@ -124,16 +124,16 @@ const outerbaseIpc = {
 
   // expose docs ipc following remote save doc from web studio: https://github.com/outerbase/studio/blob/develop/src/drivers/saved-doc/remote-saved-doc.ts
   docs: {
-    getNamespaces: () => ipcRenderer.invoke("get-name-spaces"),
+    getNamespaces: () => ipcRenderer.invoke("get-namespaces"),
 
     createNamespace: (roomName: string) =>
-      ipcRenderer.invoke("create-name-space", roomName),
+      ipcRenderer.invoke("create-namespace", roomName),
 
     updateNamespace: (id: string, newName: string) =>
-      ipcRenderer.invoke("update-name-space", id, newName),
+      ipcRenderer.invoke("update-namespace", id, newName),
 
     removeNamespace: (id: string): Promise<void> =>
-      ipcRenderer.invoke("remove-name-space", id),
+      ipcRenderer.invoke("remove-namespace", id),
 
     createDoc: (
       type: string,
