@@ -9,55 +9,41 @@ import { FileBasedDocDriver } from "./drivers/saved-doc";
 
 export class SavedDocManager {
   private static docDrivers: Record<string, FileBasedDocDriver> = {};
-  private static activeConnectionId: string | null = null;
+  private static docDriver: FileBasedDocDriver;
 
   static init(connId: string) {
     if (!this.docDrivers[connId]) {
       this.docDrivers[connId] = new FileBasedDocDriver(connId);
     }
-    this.activeConnectionId = connId;
+    this.docDriver = this.docDrivers[connId];
   }
 
   static set(connId: string) {
-    this.activeConnectionId = connId;
+    this.docDriver = this.docDrivers[connId];
   }
 
   static remove(connId: string) {
     delete this.docDrivers[connId];
   }
 
-  private static getDocDriver(): FileBasedDocDriver {
-    if (!this.activeConnectionId) {
-      throw new Error(
-        "No active connection. Please initialize one using `init`.",
-      );
-    }
-    return this.docDrivers[this.activeConnectionId];
-  }
-
   static getNamespaces(): Promise<SavedDocNamespace[]> {
-    const docDriver = this.getDocDriver();
-    return docDriver.getNamespaces();
+    return this.docDriver.getNamespaces();
   }
 
   static createNamespace(name: string): Promise<SavedDocNamespace> {
-    const docDriver = this.getDocDriver();
-    return docDriver.createNamespace(name);
+    return this.docDriver.createNamespace(name);
   }
 
   static updateNamespace(id: string, name: string): Promise<SavedDocNamespace> {
-    const docDriver = this.getDocDriver();
-    return docDriver.updateNamespace(id, name);
+    return this.docDriver.updateNamespace(id, name);
   }
 
   static removeNamespace(id: string): Promise<void> {
-    const docDriver = this.getDocDriver();
-    return docDriver.removeNamespace(id);
+    return this.docDriver.removeNamespace(id);
   }
 
   static async getDocs(): Promise<SavedDocGroupByNamespace[]> {
-    const docDriver = this.getDocDriver();
-    return docDriver.getDocs();
+    return this.docDriver.getDocs();
   }
 
   static createDoc(
@@ -65,21 +51,18 @@ export class SavedDocManager {
     namespaceId: string,
     data: SavedDocInput,
   ): Promise<SavedDocData> {
-    const docDriver = this.getDocDriver();
-    return docDriver.createDoc(type, namespaceId, data);
+    return this.docDriver.createDoc(type, namespaceId, data);
   }
 
   static async updateDoc(
     id: string,
     data: SavedDocInput,
   ): Promise<SavedDocData> {
-    const docDriver = this.getDocDriver();
-    return docDriver.updateDoc(id, data);
+    return this.docDriver.updateDoc(id, data);
   }
 
   static removeDoc(id: string): Promise<void> {
-    const docDriver = this.getDocDriver();
-    return docDriver.removeDoc(id);
+    return this.docDriver.removeDoc(id);
   }
 
   static async deleteDocFile(connId: string): Promise<void> {
@@ -89,12 +72,10 @@ export class SavedDocManager {
   }
 
   static addChangeListener(cb: () => void): void {
-    const docDriver = this.getDocDriver();
-    docDriver.addChangeListener(cb);
+    this.docDriver.addChangeListener(cb);
   }
 
   static removeChangeListener(cb: () => void): void {
-    const docDriver = this.getDocDriver();
-    docDriver.removeChangeListener(cb);
+    this.docDriver.removeChangeListener(cb);
   }
 }
