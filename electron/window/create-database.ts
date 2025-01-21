@@ -6,7 +6,6 @@ import { STUDIO_ENDPOINT } from "../constants";
 import { getWindowConfig, isDev } from "../utils";
 import { MainWindow } from "./main-window";
 import { settings } from "../main";
-import { SavedDocManager } from "../saved-doc-manager";
 
 export const windowMap = new Map<string, BrowserWindow>();
 
@@ -20,7 +19,6 @@ export function createDatabaseWindow(ctx: {
   const dbWindow = new BrowserWindow(getWindowConfig(ctx.conn.id, theme));
 
   ConnectionPool.create(ctx.conn);
-  SavedDocManager.init(ctx.conn.id);
 
   const queryString = new URLSearchParams({
     name: ctx.conn.name,
@@ -36,12 +34,7 @@ export function createDatabaseWindow(ctx: {
     }
     windowMap.delete(ctx.conn.id);
     ConnectionPool.close(ctx.conn.id);
-    SavedDocManager.remove(ctx.conn.id);
     dbWindow.destroy();
-  });
-
-  dbWindow.on("focus", () => {
-    SavedDocManager.set(ctx.conn.id);
   });
 
   if (ctx.conn.type === "mysql") {

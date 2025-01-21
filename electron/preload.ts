@@ -9,7 +9,6 @@ import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { type ContainerInspectInfo, type ContainerInfo } from "dockerode";
 import { Result } from "./drivers/base";
 import type { TrackEventItem } from "./ipc/analytics";
-import { SavedDocData } from "./drivers/base-doc";
 
 // Get connection id
 const connectionId = process.argv
@@ -124,48 +123,16 @@ const outerbaseIpc = {
 
   // expose docs ipc following remote save doc from web studio: https://github.com/outerbase/studio/blob/develop/src/drivers/saved-doc/remote-saved-doc.ts
   docs: {
-    getNamespaces: () => ipcRenderer.invoke("get-namespaces"),
-
-    createNamespace: (roomName: string) =>
-      ipcRenderer.invoke("create-namespace", roomName),
-
-    updateNamespace: (id: string, newName: string) =>
-      ipcRenderer.invoke("update-namespace", id, newName),
-
-    removeNamespace: (id: string): Promise<void> =>
-      ipcRenderer.invoke("remove-namespace", id),
-
-    createDoc: (
-      type: string,
-      namespace: string,
-      data: Record<string, unknown>,
-    ): Promise<SavedDocData> =>
-      ipcRenderer.invoke("create-doc", type, namespace, data),
-
-    getDocs: (): Promise<SavedDocData[]> => {
-      return ipcRenderer.invoke("get-docs");
+    save(doc: unknown) {
+      return ipcRenderer.invoke("doc-save", connectionId, doc);
     },
 
-    updateDoc: (
-      id: string,
-      data: Record<string, SavedDocData>,
-    ): Promise<SavedDocData> => ipcRenderer.invoke("update-doc", id, data),
-
-    removeDoc: (id: string): Promise<void> =>
-      ipcRenderer.invoke("remove-doc", id),
-
-    deleteDocFile: (connId: string) => {
-      ipcRenderer.invoke("delete-doc-file", connId);
+    load(): Promise<unknown> {
+      return ipcRenderer.invoke("doc-load", connectionId);
     },
 
-    addChangeListener: (cb: () => void) => {
-      ipcRenderer.on("changeEvent", cb);
-      ipcRenderer.send("add-change-listener");
-    },
-
-    removeChangeListener: (cb: () => void) => {
-      ipcRenderer.removeListener("changeEvent", cb);
-      ipcRenderer.send("remove-change-listener");
+    delete(connId: string) {
+      return ipcRenderer.invoke("doc-delete", connId);
     },
   },
 
