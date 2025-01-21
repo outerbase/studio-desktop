@@ -142,8 +142,8 @@ const outerbaseIpc = {
     ): Promise<SavedDocData> =>
       ipcRenderer.invoke("create-doc", type, namespace, data),
 
-    getDocs: (connId: string): Promise<SavedDocData[]> => {
-      return ipcRenderer.invoke("get-docs", connId);
+    getDocs: (): Promise<SavedDocData[]> => {
+      return ipcRenderer.invoke("get-docs");
     },
 
     updateDoc: (
