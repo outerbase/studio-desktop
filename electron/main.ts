@@ -14,7 +14,7 @@ import { MainWindow } from "./window/main-window";
 import electronUpdater, { type AppUpdater } from "electron-updater";
 import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { createDatabaseWindow } from "./window/create-database";
-import { bindMenuIpc, bindDockerIpc } from "./ipc";
+import { bindMenuIpc, bindDockerIpc, bindSavedDocIpc } from "./ipc";
 import { bindAnalyticIpc } from "./ipc/analytics";
 
 export function getAutoUpdater(): AppUpdater {
@@ -139,4 +139,5 @@ ipcMain.on("navigate", (event, route: string) => {
   event.sender.send("navigate-to", route);
 });
 
+bindSavedDocIpc();
 bindAnalyticIpc();

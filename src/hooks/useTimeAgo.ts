@@ -4,7 +4,7 @@ export default function useTimeAgo() {
    * @param addSuffix (optional)
    */
   const timeAgo = (timestamp: number, addSuffix?: boolean) => {
-    if (timestamp < 10000000000) {
+    if (timestamp < 10e9) {
       timestamp *= 1000;
     }
 
