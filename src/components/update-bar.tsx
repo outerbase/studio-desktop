@@ -43,7 +43,6 @@ export default function UpdateBar() {
   useEffect(() => {
     const handler = (_: unknown, info: ProgressInfo) => {
       setProgress(info);
-      setStage("downloading");
     };
 
     window.outerbaseIpc.on("update-download-progress", handler);
@@ -107,6 +106,7 @@ export default function UpdateBar() {
         <span
           className="cursor-pointer underline"
           onClick={() => {
+            setStage("downloading");
             window.outerbaseIpc.downloadUpdate();
           }}
         >
@@ -116,14 +116,14 @@ export default function UpdateBar() {
     );
   }
 
-  if (progress) {
+  if (progress || stage === "downloading") {
     return (
       <div className="flex items-center justify-end pr-2">
         <LucideLoader
           className="mr-2 inline-block h-4 w-4 animate-spin"
           size={16}
         />
-        Downloading update {progress.percent.toFixed(2)}%
+        Downloading update {progress?.percent.toFixed(2) || "0"}%
       </div>
     );
   }
