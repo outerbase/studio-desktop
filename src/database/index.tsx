@@ -30,6 +30,7 @@ function ConnectionListRoute() {
   useEffect(() => {
     const update = (_: unknown, conn: ConnectionStoreItem) => {
       ConnectionStoreManager.save({ ...conn, lastConnectedAt: Date.now() });
+      setConnectionList(ConnectionStoreManager.list());
     };
 
     window.outerbaseIpc.on("update-connection", update);
