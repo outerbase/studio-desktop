@@ -39,6 +39,7 @@ export function bindMenuIpc(main: MainWindow) {
                     main.hide();
                   }
                   createDatabaseWindow({ main, conn });
+                  main.updateConnection(conn);
                 }
               }
             },

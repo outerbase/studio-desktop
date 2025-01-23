@@ -1,8 +1,11 @@
 import { Toolbar } from "@/components/toolbar";
 import { AnimatedRouter } from "@/components/animated-router";
 import { ConnectionCreateUpdateRoute } from "./editor-route";
-import { ConnectionStoreManager } from "@/lib/conn-manager-store";
-import { useMemo, useState } from "react";
+import {
+  ConnectionStoreItem,
+  ConnectionStoreManager,
+} from "@/lib/conn-manager-store";
+import { useEffect, useMemo, useState } from "react";
 import ImportConnectionStringRoute from "./import-connection-string";
 import useNavigateToRoute from "@/hooks/useNavigateToRoute";
 import AddConnectionDropdown from "./add-connection-dropdown";
@@ -23,6 +26,17 @@ function ConnectionListRoute() {
     }
     return connectionList;
   }, [connectionList, search]);
+
+  useEffect(() => {
+    const update = (_: unknown, conn: ConnectionStoreItem) => {
+      ConnectionStoreManager.save({ ...conn, lastConnectedAt: Date.now() });
+    };
+
+    window.outerbaseIpc.on("update-connection", update);
+    return () => {
+      window.outerbaseIpc.off("update-connection", update);
+    };
+  }, []);
 
   return (
     <div className="flex h-full w-full flex-col">

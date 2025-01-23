@@ -10,6 +10,7 @@ import {
   settings,
 } from "../main";
 import { ThemeType } from "@/context/theme-provider";
+import { ConnectionStoreItem } from "@/lib/conn-manager-store";
 
 const autoUpdater = getAutoUpdater();
 
@@ -135,5 +136,9 @@ export class MainWindow {
 
   public remove() {
     this.win = undefined;
+  }
+
+  public updateConnection(conn: ConnectionStoreItem) {
+    this.win?.webContents.send("update-connection", conn);
   }
 }
