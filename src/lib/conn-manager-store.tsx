@@ -4,6 +4,7 @@ import {
   DoltIcon,
   MySQLIcon,
   PostgreIcon,
+  SQLiteIcon,
   StarbaseIcon,
   TursoIcon,
 } from "./outerbase-icon";
@@ -201,6 +202,7 @@ export const connectionTypeTemplates: Record<string, ConnectionTypeTemplate> = {
   sqlite: {
     name: "sqlite",
     label: "SQLite",
+    icon: SQLiteIcon,
     defaultValue: { host: "" },
     template: [
       {
@@ -225,7 +227,6 @@ export const connectionTypeTemplates: Record<string, ConnectionTypeTemplate> = {
         ],
       },
     ],
-    icon: MySQLIcon,
   },
 };
 
