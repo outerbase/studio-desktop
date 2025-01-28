@@ -42,7 +42,7 @@ export function ConnectionCreateUpdateRoute() {
   const onSaveClicked = useCallback(() => {
     const timestamp = Date.now();
     let saveConn: ConnectionStoreItem;
-    if (!value.id) {
+    if (!connectionId) {
       saveConn = {
         ...value,
         createdAt: timestamp,
@@ -57,7 +57,7 @@ export function ConnectionCreateUpdateRoute() {
     }
     ConnectionStoreManager.save(saveConn);
     goBack();
-  }, [value, goBack]);
+  }, [value, connectionId, goBack]);
 
   const onConnectClicked = useCallback(() => {
     const duration = 2000;
