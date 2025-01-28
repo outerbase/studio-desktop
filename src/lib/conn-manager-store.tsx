@@ -28,6 +28,10 @@ export interface ConnectionStoreItem {
   config: ConnectionStoreItemConfig;
 }
 
+export type SortBy = "lastConnectedAt" | "createdAt";
+
+export type OrderBy = "asc" | "desc";
+
 interface ConnectionTypeTemplate {
   name: string;
   label: string;
@@ -231,6 +235,8 @@ export const connectionTypeTemplates: Record<string, ConnectionTypeTemplate> = {
 };
 
 export class ConnectionStoreManager {
+  private static SORT_PREFERENCES_KEY = "connection_sort_preferences";
+
   static list() {
     try {
       const data = localStorage.getItem("connections");
@@ -285,7 +291,8 @@ export class ConnectionStoreManager {
     } else {
       list[index] = item;
     }
-    const finalData = this.sort(list);
+    const { sortBy, orderBy } = this.getSortPreferences();
+    const finalData = this.sort(list, sortBy, orderBy);
     localStorage.setItem("connections", JSON.stringify(finalData));
   }
 
@@ -293,11 +300,52 @@ export class ConnectionStoreManager {
     localStorage.setItem("connections", JSON.stringify(items));
   }
 
-  static sort(items: ConnectionStoreItem[]) {
-    return items.sort((a, b) => {
-      const aDate = a.lastConnectedAt || 0;
-      const bDate = b.lastConnectedAt || 0;
-      return bDate - aDate;
+  /**
+   * Sort the connections based on a specified key.
+   * @param items - The list of connections to sort.
+   * @param sortBy - The key to sort by (e.g., 'createdAt', 'lastConnectedAt').
+   * @param order - The sorting order ('asc' or 'desc'). Default is 'asc'.
+   * @returns - The sorted array of connections.
+   */
+  static sort(items: ConnectionStoreItem[], sortBy: SortBy, orderBy: OrderBy) {
+    return [...items].sort((a, b) => {
+      const aValue = a[sortBy] ?? 0;
+      const bValue = b[sortBy] ?? 0;
+
+      if (orderBy === "asc") {
+        return aValue - bValue;
+      } else {
+        return bValue - aValue;
+      }
     });
+  }
+
+  /**
+   * Persist sorting preferences to localStorage.
+   * @param sortBy - The key to sort by (e.g., 'createdAt', 'lastConnectedAt').
+   * @param order - The sorting order ('asc' or 'desc').
+   */
+  static setSortPreferences(sortBy: SortBy, orderBy: OrderBy) {
+    const preferences = { sortBy, orderBy };
+    localStorage.setItem(
+      this.SORT_PREFERENCES_KEY,
+      JSON.stringify(preferences),
+    );
+  }
+
+  /**
+   * Retrieve the current sort preferences.
+   * @returns - The sort key and order.
+   */
+  static getSortPreferences(): {
+    sortBy: SortBy;
+    orderBy: OrderBy;
+  } {
+    const data = localStorage.getItem(this.SORT_PREFERENCES_KEY);
+    if (data) {
+      return JSON.parse(data);
+    }
+    // Default to sorting by 'lastConnectedAt' in descending order
+    return { sortBy: "lastConnectedAt", orderBy: "desc" };
   }
 }
