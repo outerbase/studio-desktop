@@ -235,15 +235,16 @@ export const connectionTypeTemplates: Record<string, ConnectionTypeTemplate> = {
 };
 
 export class ConnectionStoreManager {
+  private static CONNECTIONS = "connections";
   private static SORT_PREFERENCES_KEY = "connection_sort_preferences";
 
   static list() {
     try {
-      const data = localStorage.getItem("connections");
+      const data = localStorage.getItem(this.CONNECTIONS);
       if (!data) return [];
       const parsedJson = JSON.parse(data);
       // send to main process
-      window.outerbaseIpc.send("connections", parsedJson);
+      window.outerbaseIpc.send(this.CONNECTIONS, parsedJson);
       return parsedJson as ConnectionStoreItem[];
     } catch {
       return [];
@@ -260,7 +261,7 @@ export class ConnectionStoreManager {
 
     const tmp = list.filter((i) => i.id !== connectionId);
 
-    localStorage.setItem("connections", JSON.stringify(tmp));
+    localStorage.setItem(this.CONNECTIONS, JSON.stringify(tmp));
 
     return tmp;
   }
@@ -278,7 +279,7 @@ export class ConnectionStoreManager {
     const index = list.findIndex((i) => i.id === item.id);
     list.splice(index + 1, 0, newItem);
 
-    localStorage.setItem("connections", JSON.stringify(list));
+    localStorage.setItem(this.CONNECTIONS, JSON.stringify(list));
     return list;
   }
 
@@ -293,11 +294,11 @@ export class ConnectionStoreManager {
     }
     const { sortBy, orderBy } = this.getSortPreferences();
     const finalData = this.sort(list, sortBy, orderBy);
-    localStorage.setItem("connections", JSON.stringify(finalData));
+    localStorage.setItem(this.CONNECTIONS, JSON.stringify(finalData));
   }
 
   static saveAll(items: ConnectionStoreItem[]) {
-    localStorage.setItem("connections", JSON.stringify(items));
+    localStorage.setItem(this.CONNECTIONS, JSON.stringify(items));
   }
 
   /**
