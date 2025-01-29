@@ -234,17 +234,16 @@ export const connectionTypeTemplates: Record<string, ConnectionTypeTemplate> = {
   },
 };
 
+const CONNECTIONS_KEY = "connections";
+const SORT_PREFERENCES_KEY = "connection_sort_preferences";
 export class ConnectionStoreManager {
-  private static CONNECTIONS = "connections";
-  private static SORT_PREFERENCES_KEY = "connection_sort_preferences";
-
   static list() {
     try {
-      const data = localStorage.getItem(this.CONNECTIONS);
+      const data = localStorage.getItem(CONNECTIONS_KEY);
       if (!data) return [];
       const parsedJson = JSON.parse(data);
       // send to main process
-      window.outerbaseIpc.send(this.CONNECTIONS, parsedJson);
+      window.outerbaseIpc.send(CONNECTIONS_KEY, parsedJson);
       return parsedJson as ConnectionStoreItem[];
     } catch {
       return [];
@@ -261,7 +260,7 @@ export class ConnectionStoreManager {
 
     const tmp = list.filter((i) => i.id !== connectionId);
 
-    localStorage.setItem(this.CONNECTIONS, JSON.stringify(tmp));
+    localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(tmp));
 
     return tmp;
   }
@@ -279,7 +278,7 @@ export class ConnectionStoreManager {
     const index = list.findIndex((i) => i.id === item.id);
     list.splice(index + 1, 0, newItem);
 
-    localStorage.setItem(this.CONNECTIONS, JSON.stringify(list));
+    localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(list));
     return list;
   }
 
@@ -294,11 +293,11 @@ export class ConnectionStoreManager {
     }
     const { sortBy, orderBy } = this.getSortPreferences();
     const finalData = this.sort(list, sortBy, orderBy);
-    localStorage.setItem(this.CONNECTIONS, JSON.stringify(finalData));
+    localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(finalData));
   }
 
   static saveAll(items: ConnectionStoreItem[]) {
-    localStorage.setItem(this.CONNECTIONS, JSON.stringify(items));
+    localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(items));
   }
 
   /**
@@ -328,10 +327,7 @@ export class ConnectionStoreManager {
    */
   static setSortPreferences(sortBy: SortBy, orderBy: OrderBy) {
     const preferences = { sortBy, orderBy };
-    localStorage.setItem(
-      this.SORT_PREFERENCES_KEY,
-      JSON.stringify(preferences),
-    );
+    localStorage.setItem(SORT_PREFERENCES_KEY, JSON.stringify(preferences));
   }
 
   /**
@@ -342,7 +338,7 @@ export class ConnectionStoreManager {
     sortBy: SortBy;
     orderBy: OrderBy;
   } {
-    const data = localStorage.getItem(this.SORT_PREFERENCES_KEY);
+    const data = localStorage.getItem(SORT_PREFERENCES_KEY);
     if (data) {
       return JSON.parse(data);
     }

@@ -28,7 +28,7 @@ const SortOptions = [
   {
     title: "Last Connected",
     sortBy: "lastConnectedAt",
-    orderBy: "acs",
+    orderBy: "asc",
   },
   {
     title: "Created Date",
