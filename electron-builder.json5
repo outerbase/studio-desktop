@@ -9,6 +9,25 @@
   },
   files: ["dist", "dist-electron"],
   afterSign: "scripts/notarize.cjs",
+
+  // 🔹 Enable deep linking across platforms
+  protocols: [
+    {
+      name: "Outerbase Protocol",
+      schemes: [
+        "outerbase",
+        "sqlite",
+        "mysql",
+        "postgres",
+        "turso",
+        "starbase",
+        "dolt",
+        "cloudflare",
+      ],
+      role: "Editor",
+    },
+  ],
+
   mac: {
     notarize: false,
     target: [
@@ -22,6 +41,25 @@
       },
     ],
     artifactName: "outerbase-mac-${version}.${ext}",
+    entitlements: "entitlements.mac.plist",
+    entitlementsInherit: "entitlements.mac.plist",
+    extendInfo: {
+      CFBundleURLTypes: [
+        {
+          CFBundleURLName: "Outerbase",
+          CFBundleURLSchemes: [
+            "outerbase",
+            "sqlite",
+            "mysql",
+            "postgres",
+            "turso",
+            "starbase",
+            "dolt",
+            "cloudflare",
+          ],
+        },
+      ],
+    },
   },
   win: {
     target: [
