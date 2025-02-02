@@ -16,6 +16,7 @@ import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { createDatabaseWindow } from "./window/create-database";
 import { bindMenuIpc, bindDockerIpc, bindSavedDocIpc } from "./ipc";
 import { bindAnalyticIpc } from "./ipc/analytics";
+import { OuterbaseProtocols } from "./constants";
 
 export function getAutoUpdater(): AppUpdater {
   // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
@@ -54,6 +55,10 @@ export const settings = new Setting();
 settings.load();
 
 const mainWindow = new MainWindow();
+
+OuterbaseProtocols.forEach((protocol) => {
+  app.setAsDefaultProtocolClient(protocol);
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -138,6 +143,47 @@ ipcMain.handle("set-setting", (_, key, value) => {
 ipcMain.on("navigate", (event, route: string) => {
   event.sender.send("navigate-to", route);
 });
+// Handle deep links
+const gotTheLock = app.requestSingleInstanceLock();
 
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (_, commandLine) => {
+    // Process deep link when app is already running
+    const url = commandLine.find(
+      (arg) =>
+        arg.startsWith("mysql://") ||
+        arg.startsWith("postgres://") ||
+        arg.startsWith("outerbase://") ||
+        arg.startsWith("sqlite://") ||
+        arg.startsWith("starbase://") ||
+        arg.startsWith("turso://") ||
+        arg.startsWith("cloudflare://"),
+    );
+    if (url) {
+      handleDeepLink(url);
+    }
+  });
+
+  app.on("open-url", (event, url) => {
+    event.preventDefault();
+    handleDeepLink(url);
+  });
+}
+
+function handleDeepLink(url: string) {
+  console.log("Deep link received:", url);
+  const win = mainWindow.getWindow();
+  // Someone tried to run a second instance, we should focus our window.
+  if (win) {
+    if (win.isMinimized()) {
+      win.restore();
+    } else {
+      win.focus();
+    }
+    win?.webContents.send("deep-link", url);
+  }
+}
 bindSavedDocIpc();
 bindAnalyticIpc();

@@ -7,8 +7,10 @@ import ImportConnectionStringRoute from "./import-connection-string";
 import useNavigateToRoute from "@/hooks/useNavigateToRoute";
 import AddConnectionDropdown from "./add-connection-dropdown";
 import ConnectionList from "@/components/database/connection-list";
+import useDeeplink from "@/hooks/useDeeplink";
 
 function ConnectionListRoute() {
+  useDeeplink();
   useNavigateToRoute();
   const [search, setSearch] = useState("");
   const [connectionList, setConnectionList] = useState(() => {
