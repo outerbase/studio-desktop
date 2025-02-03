@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +7,8 @@ import {
 } from "../ui/dropdown-menu";
 import { BoardVisual } from "./visual";
 import { Database, LucideMoreHorizontal } from "lucide-react";
+import useTimeAgo from "@/hooks/useTimeAgo";
+import { HighlightText } from "../ui/highlight";
 
 interface DatabaseCardProps {
   className?: string;
@@ -15,6 +17,9 @@ interface DatabaseCardProps {
   title?: string;
   subtitle?: string;
   color?: string;
+  onDoubleClick?: () => void;
+  highlight?: string;
+  lastConnectedAt?: number;
   visual?: React.FC<React.SVGProps<SVGSVGElement>>;
   icon?: React.FC<React.SVGProps<SVGSVGElement>>;
 }
@@ -25,14 +30,24 @@ export default function ResourceCard({
   status,
   title,
   subtitle,
+  highlight,
+  lastConnectedAt,
+  onDoubleClick,
   icon: IconComponent = Database,
   visual: VisualComponent = BoardVisual,
   children,
 }: PropsWithChildren<DatabaseCardProps>) {
+  const { timeAgo } = useTimeAgo();
   const [open, setOpen] = useState(false);
+  const timeago = useMemo(() => {
+    if (lastConnectedAt) {
+      return timeAgo(lastConnectedAt);
+    }
+  }, [timeAgo, lastConnectedAt]);
 
   return (
     <div
+      onDoubleClick={onDoubleClick}
       className={cn(
         "group relative flex h-36 w-[302px] flex-col justify-between overflow-hidden rounded-md border border-neutral-200 bg-white p-3.5 hover:border-neutral-300 focus:outline-none focus:*:opacity-100 focus-visible:ring focus-visible:ring-blue-600 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700/75",
         className,
@@ -68,7 +83,7 @@ export default function ResourceCard({
         </div>
         <div className="flex-1 overflow-x-hidden">
           <p className="line-clamp-1 w-full text-sm font-semibold tracking-tight">
-            {title}
+            <HighlightText text={title ?? ""} highlight={highlight} />
           </p>
           {subtitle && (
             <p className="text-xs font-medium text-neutral-400">{subtitle}</p>
@@ -104,7 +119,9 @@ export default function ResourceCard({
           },
         )}
       />
-
+      <div className="h-4 text-xs text-neutral-600">
+        {timeago ? `Last connected ${timeago}` : " "}
+      </div>
       {children && (
         <DropdownMenu modal={false} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>
