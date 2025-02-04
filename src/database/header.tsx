@@ -26,13 +26,13 @@ interface HeaderProps {
 
 const SortOptions = [
   {
-    title: "Last Connected",
-    sortBy: "lastConnectedAt",
+    title: "Created Date",
+    sortBy: "createdAt",
     orderBy: "asc",
   },
   {
-    title: "Created Date",
-    sortBy: "createdAt",
+    title: "Last Connected",
+    sortBy: "lastConnectedAt",
     orderBy: "desc",
   },
 ];
@@ -45,8 +45,9 @@ export default function Header({
 }: HeaderProps) {
   const [isOpenSort, setIsOpenSort] = useState(false);
 
-  const [sortPrefs, setSortPrefs] = useState(() => {
-    return ConnectionStoreManager.getSortPreferences();
+  const [sortPrefs, setSortPrefs] = useState({
+    sortBy: "asc",
+    orderBy: "createdAt",
   });
 
   const handleSortConnection = useCallback(
@@ -57,9 +58,6 @@ export default function Header({
         orderBy,
       });
       setConnectionList(sortedConn);
-
-      ConnectionStoreManager.saveAll(sortedConn);
-      ConnectionStoreManager.setSortPreferences(sortBy, orderBy);
     },
     [items, setConnectionList],
   );

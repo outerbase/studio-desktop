@@ -235,7 +235,6 @@ export const connectionTypeTemplates: Record<string, ConnectionTypeTemplate> = {
 };
 
 const CONNECTIONS_KEY = "connections";
-const SORT_PREFERENCES_KEY = "connection_sort_preferences";
 export class ConnectionStoreManager {
   static list() {
     try {
@@ -291,8 +290,7 @@ export class ConnectionStoreManager {
     } else {
       list[index] = item;
     }
-    const { sortBy, orderBy } = this.getSortPreferences();
-    const finalData = this.sort(list, sortBy, orderBy);
+    const finalData = this.sort(list);
     localStorage.setItem(CONNECTIONS_KEY, JSON.stringify(finalData));
   }
 
@@ -307,7 +305,11 @@ export class ConnectionStoreManager {
    * @param order - The sorting order ('asc' or 'desc'). Default is 'asc'.
    * @returns - The sorted array of connections.
    */
-  static sort(items: ConnectionStoreItem[], sortBy: SortBy, orderBy: OrderBy) {
+  static sort(
+    items: ConnectionStoreItem[],
+    sortBy: SortBy = "createdAt",
+    orderBy: OrderBy = "asc",
+  ) {
     return [...items].sort((a, b) => {
       const aValue = a[sortBy] ?? 0;
       const bValue = b[sortBy] ?? 0;
@@ -318,31 +320,5 @@ export class ConnectionStoreManager {
         return bValue - aValue;
       }
     });
-  }
-
-  /**
-   * Persist sorting preferences to localStorage.
-   * @param sortBy - The key to sort by (e.g., 'createdAt', 'lastConnectedAt').
-   * @param order - The sorting order ('asc' or 'desc').
-   */
-  static setSortPreferences(sortBy: SortBy, orderBy: OrderBy) {
-    const preferences = { sortBy, orderBy };
-    localStorage.setItem(SORT_PREFERENCES_KEY, JSON.stringify(preferences));
-  }
-
-  /**
-   * Retrieve the current sort preferences.
-   * @returns - The sort key and order.
-   */
-  static getSortPreferences(): {
-    sortBy: SortBy;
-    orderBy: OrderBy;
-  } {
-    const data = localStorage.getItem(SORT_PREFERENCES_KEY);
-    if (data) {
-      return JSON.parse(data);
-    }
-    // Default to sorting by 'lastConnectedAt' in descending order
-    return { sortBy: "lastConnectedAt", orderBy: "desc" };
   }
 }
