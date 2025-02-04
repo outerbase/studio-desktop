@@ -1,18 +1,18 @@
-import { Toolbar } from "@/components/toolbar";
 import { AnimatedRouter } from "@/components/animated-router";
 import { ConnectionCreateUpdateRoute } from "./editor-route";
 import { ConnectionStoreManager } from "@/lib/conn-manager-store";
 import { useMemo, useState } from "react";
 import ImportConnectionStringRoute from "./import-connection-string";
 import useNavigateToRoute from "@/hooks/useNavigateToRoute";
-import AddConnectionDropdown from "./add-connection-dropdown";
 import ConnectionList from "@/components/database/connection-list";
 import useDeeplink from "@/hooks/useDeeplink";
+import Header from "./header";
 
 function ConnectionListRoute() {
   useDeeplink();
   useNavigateToRoute();
   const [search, setSearch] = useState("");
+
   const [connectionList, setConnectionList] = useState(() => {
     return ConnectionStoreManager.list();
   });
@@ -28,20 +28,12 @@ function ConnectionListRoute() {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <Toolbar>
-        <AddConnectionDropdown />
-        <div className="flex-1"></div>
-        <input
-          type="text"
-          value={search}
-          placeholder="Search your connection..."
-          className="w-[300px] rounded bg-accent p-2 px-4 text-sm outline-0"
-          onChange={(e) => {
-            e.preventDefault();
-            setSearch(e.currentTarget.value);
-          }}
-        />
-      </Toolbar>
+      <Header
+        search={search}
+        setSearch={setSearch}
+        items={connectionList}
+        setConnectionList={setConnectionList}
+      />
       {!!search && connections.length === 0 ? (
         <div className="flex flex-1 justify-center p-3 text-sm text-neutral-600">
           Search connection not found.
