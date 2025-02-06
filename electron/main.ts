@@ -56,17 +56,17 @@ settings.load();
 
 const mainWindow = new MainWindow();
 
-if (process.defaultApp) {
-  if (process.argv.length >= 2) {
-    OuterbaseProtocols.forEach((protocol) => {
+OuterbaseProtocols.forEach((protocol) => {
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
       app.setAsDefaultProtocolClient(protocol, process.execPath, [
         path.resolve(process.argv[1]),
       ]);
-    });
+    }
+  } else {
+    app.setAsDefaultProtocolClient(protocol);
   }
-} else {
-  app.setAsDefaultProtocolClient("outerbase");
-}
+});
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
