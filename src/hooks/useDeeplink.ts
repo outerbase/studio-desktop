@@ -1,26 +1,23 @@
+import { OuterbaseProtocols } from "../../electron/constants";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+interface Args {
+  protocol: string;
+  host: string;
+  port: string;
+  database: string;
+}
 export default function useDeeplink() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleDeepLink = (_: unknown, url: URL) => {
-      try {
-        // Example: Extract database type and connection details
-        const urlObj = new URL(url);
-        const protocol = urlObj.protocol.replace(":", ""); // mysql, postgres, outerbase
-        const host = urlObj.hostname;
-        const port = urlObj.port || (protocol === "mysql" ? 3306 : 5432);
-        const database = urlObj.pathname.replace("/", "");
-
-        console.log("Protocol:", protocol);
-        console.log("Host:", host);
-        console.log("Port:", port);
-        console.log("Database:", database);
-        navigate(`/connection/create/${protocol}`);
-      } catch (error) {
-        console.error("Failed to handle deep link:", error);
+    const handleDeepLink = (_event: unknown, { database }: Args) => {
+      const matchRoute =
+        OuterbaseProtocols.findIndex((protocol) => protocol === database) > -1;
+      // currently handle only create connection route
+      if (matchRoute) {
+        navigate(`/connection/create/${database}`);
       }
     };
 

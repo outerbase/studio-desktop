@@ -56,10 +56,17 @@ settings.load();
 
 const mainWindow = new MainWindow();
 
-OuterbaseProtocols.forEach((protocol) => {
-  app.setAsDefaultProtocolClient(protocol);
-});
-
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    OuterbaseProtocols.forEach((protocol) => {
+      app.setAsDefaultProtocolClient(protocol, process.execPath, [
+        path.resolve(process.argv[1]),
+      ]);
+    });
+  }
+} else {
+  app.setAsDefaultProtocolClient("outerbase");
+}
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
@@ -151,16 +158,10 @@ if (!gotTheLock) {
 } else {
   app.on("second-instance", (_, commandLine) => {
     // Process deep link when app is already running
-    const url = commandLine.find(
-      (arg) =>
-        arg.startsWith("mysql://") ||
-        arg.startsWith("postgres://") ||
-        arg.startsWith("outerbase://") ||
-        arg.startsWith("sqlite://") ||
-        arg.startsWith("starbase://") ||
-        arg.startsWith("turso://") ||
-        arg.startsWith("cloudflare://"),
+    const url = commandLine.find((arg) =>
+      OuterbaseProtocols.some((protocol) => arg.startsWith(`${protocol}://`)),
     );
+
     if (url) {
       handleDeepLink(url);
     }
@@ -173,7 +174,6 @@ if (!gotTheLock) {
 }
 
 function handleDeepLink(url: string) {
-  console.log("Deep link received:", url);
   const win = mainWindow.getWindow();
   // Someone tried to run a second instance, we should focus our window.
   if (win) {
@@ -182,7 +182,25 @@ function handleDeepLink(url: string) {
     } else {
       win.focus();
     }
-    win?.webContents.send("deep-link", url);
+    try {
+      const urlObj = new URL(url);
+      const protocol = urlObj.protocol.replace(":", "");
+      const host = urlObj.hostname;
+      const port = urlObj.port || (protocol === "mysql" ? 3306 : 5432);
+      const database = urlObj.pathname.replace("/", "");
+
+      // Send deep link data to the React frontend
+      win.webContents.send("deep-link", {
+        protocol,
+        host,
+        port,
+        database,
+      });
+    } catch (error) {
+      console.error("Invalid deep link:", url);
+    }
+  } else {
+    mainWindow.init();
   }
 }
 bindSavedDocIpc();
