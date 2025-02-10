@@ -5,9 +5,11 @@ import { useMemo, useState } from "react";
 import ImportConnectionStringRoute from "./import-connection-string";
 import useNavigateToRoute from "@/hooks/useNavigateToRoute";
 import ConnectionList from "@/components/database/connection-list";
+import useDeeplink from "@/hooks/useDeeplink";
 import Header from "./header";
 
 function ConnectionListRoute() {
+  useDeeplink();
   useNavigateToRoute();
   const [search, setSearch] = useState("");
 

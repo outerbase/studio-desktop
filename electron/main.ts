@@ -16,6 +16,7 @@ import { type ConnectionStoreItem } from "@/lib/conn-manager-store";
 import { createDatabaseWindow } from "./window/create-database";
 import { bindMenuIpc, bindDockerIpc, bindSavedDocIpc } from "./ipc";
 import { bindAnalyticIpc } from "./ipc/analytics";
+import { OuterbaseProtocols } from "./constants";
 
 export function getAutoUpdater(): AppUpdater {
   // Using destructuring to access autoUpdater due to the CommonJS module of 'electron-updater'.
@@ -55,6 +56,17 @@ settings.load();
 
 const mainWindow = new MainWindow();
 
+OuterbaseProtocols.forEach((protocol) => {
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient(protocol, process.execPath, [
+        path.resolve(process.argv[1]),
+      ]);
+    }
+  } else {
+    app.setAsDefaultProtocolClient(protocol);
+  }
+});
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
@@ -138,6 +150,58 @@ ipcMain.handle("set-setting", (_, key, value) => {
 ipcMain.on("navigate", (event, route: string) => {
   event.sender.send("navigate-to", route);
 });
+// Handle deep links
+const gotTheLock = app.requestSingleInstanceLock();
 
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (_, commandLine) => {
+    // Process deep link when app is already running
+    const url = commandLine.find((arg) =>
+      OuterbaseProtocols.some((protocol) => arg.startsWith(`${protocol}://`)),
+    );
+
+    if (url) {
+      handleDeepLink(url);
+    }
+  });
+
+  app.on("open-url", (event, url) => {
+    event.preventDefault();
+    handleDeepLink(url);
+  });
+}
+
+function handleDeepLink(url: string) {
+  const win = mainWindow.getWindow();
+  // Someone tried to run a second instance, we should focus our window.
+  if (win) {
+    if (win.isMinimized()) {
+      win.restore();
+    } else {
+      win.focus();
+    }
+    try {
+      const urlObj = new URL(url);
+      const protocol = urlObj.protocol.replace(":", "");
+      const host = urlObj.hostname;
+      const port = urlObj.port || (protocol === "mysql" ? 3306 : 5432);
+      const database = urlObj.pathname.replace("/", "");
+
+      // Send deep link data to the React frontend
+      win.webContents.send("deep-link", {
+        protocol,
+        host,
+        port,
+        database,
+      });
+    } catch (error) {
+      console.error("Invalid deep link:", url);
+    }
+  } else {
+    mainWindow.init();
+  }
+}
 bindSavedDocIpc();
 bindAnalyticIpc();
